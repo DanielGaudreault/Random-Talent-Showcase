@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Talent Showcase</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --danger: #d63031;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .talent-form {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .talents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .talent-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .talent-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .talent-video {
+            width: 100%;
+            height: 200px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .talent-info {
+            padding: 1rem;
+        }
+        
+        .talent-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .talent-description {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .talent-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .talent-category {
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .vote-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .vote-btn {
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .upvote {
+            background-color: var(--success);
+        }
+        
+        .downvote {
+            background-color: var(--danger);
+        }
+        
+        .votes-count {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .talents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Random Talent Showcase</h1>
+        <p>Share and discover the weirdest talents in the world!</p>
+    </header>
+    
+    <div class="container">
+        <section class="talent-form">
+            <h2>Submit Your Talent</h2>
+            <form id="talentForm">
+                <div class="form-group">
+                    <label for="title">Talent Title</label>
+                    <input type="text" id="title" required placeholder="What's your amazing talent?">
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3" required placeholder="Tell us more about your talent"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select a category</option>
+                        <option value="weird">Weird Talent</option>
+                        <option value="useless">Useless Skill</option>
+                        <option value="funny">Funny Trick</option>
+                        <option value="extreme">Extreme Skill</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="videoUrl">Video URL (YouTube/Vimeo)</label>
+                    <input type="url" id="videoUrl" required placeholder="https://youtube.com/your-video">
+                </div>
+                
+                <button type="submit">Submit Talent</button>
+            </form>
+        </section>
+        
+        <section class="talents-showcase">
+            <h2>Featured Talents</h2>
+            <div class="talents-grid" id="talentsGrid">
+                <!-- Talents will be added here dynamically -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Sample data - in a real app this would come from a database
+        let talents = [
+            {
+                id: 1,
+                title: "Solving Rubik's Cube Blindfolded",
+                description: "I can solve a Rubik's cube in under 2 minutes while blindfolded!",
+                category: "extreme",
+                videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                votes: 42
+            },
+            {
+                id: 2,
+                title: "Pancake Sword Flipping",
+                description: "I flip pancakes using a samurai sword. Don't try this at home!",
+                category: "weird",
+                videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                votes: 28
+            },
+            {
+                id: 3,
+                title: "Alphabet with My Eyebrows",
+                description: "I can write the entire alphabet just by moving my eyebrows.",
+                category: "useless",
+                videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                votes: 15
+            }
+        ];
+
+        // DOM Elements
+        const talentsGrid = document.getElementById('talentsGrid');
+        const talentForm = document.getElementById('talentForm');
+
+        // Display all talents
+        function displayTalents() {
+            talentsGrid.innerHTML = '';
+            
+            talents.forEach(talent => {
+                const talentCard = document.createElement('div');
+                talentCard.className = 'talent-card';
+                
+                // Get category display name
+                let categoryName = '';
+                switch(talent.category) {
+                    case 'weird': categoryName = 'Weird Talent'; break;
+                    case 'useless': categoryName = 'Useless Skill'; break;
+                    case 'funny': categoryName = 'Funny Trick'; break;
+                    case 'extreme': categoryName = 'Extreme Skill'; break;
+                }
+                
+                talentCard.innerHTML = `
+                    <div class="talent-video">
+                        <iframe width="100%" height="100%" src="${talent.videoUrl.replace('watch?v=', 'embed/')}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="talent-info">
+                        <h3 class="talent-title">${talent.title}</h3>
+                        <p class="talent-description">${talent.description}</p>
+                        <div class="talent-meta">
+                            <span class="talent-category">${categoryName}</span>
+                            <div class="vote-buttons">
+                                <button class="vote-btn upvote" onclick="vote(${talent.id}, 1)">👍</button>
+                                <span class="votes-count">${talent.votes}</span>
+                                <button class="vote-btn downvote" onclick="vote(${talent.id}, -1)">👎</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                talentsGrid.appendChild(talentCard);
+            });
+        }
+
+        // Handle voting
+        function vote(talentId, change) {
+            const talent = talents.find(t => t.id === talentId);
+            if (talent) {
+                talent.votes += change;
+                displayTalents();
+            }
+        }
+
+        // Handle form submission
+        talentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+            const videoUrl = document.getElementById('videoUrl').value;
+            
+            // Create new talent
+            const newTalent = {
+                id: talents.length > 0 ? Math.max(...talents.map(t => t.id)) + 1 : 1,
+                title,
+                description,
+                category,
+                videoUrl,
+                votes: 0
+            };
+            
+            talents.unshift(newTalent);
+            displayTalents();
+            
+            // Reset form
+            talentForm.reset();
+            
+            // Scroll to showcase
+            document.querySelector('.talents-showcase').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+
+        // Initial display
+        displayTalents();
+    </script>
+</body>
+</html>
